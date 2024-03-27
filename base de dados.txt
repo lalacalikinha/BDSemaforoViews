@@ -1,0 +1,71 @@
+
+CREATE VIEW quantidade_pedidos_motivo AS
+SELECT motivo, COUNT(*) AS quantidade_pedidos
+FROM pedidos
+GROUP BY motivo;
+
+
+CREATE VIEW quantidade_usuarios_turma AS
+SELECT turmas.nome_turma, COUNT(DISTINCT utilizadores_id_utilizador) AS quantidade_usuarios
+FROM turmas_has_utilizadores
+JOIN turmas ON turmas_has_utilizadores.turmas_id_turma = turmas.id_turma
+GROUP BY turmas.nome_turma;
+
+
+CREATE VIEW pedidos_ultimos_30dias AS
+SELECT COUNT(*) AS quantidade_pedidos
+FROM pedidos
+WHERE data_pedido >= DATE_SUB(CURDATE(), INTERVAL 30 DAY);
+
+
+CREATE VIEW pedidos_dia_hoje AS
+SELECT *
+FROM pedidos
+WHERE data_pedido = CURDATE();
+
+
+CREATE VIEW total_pedidos AS
+SELECT COUNT(*) AS total_pedidos
+FROM pedidos;
+
+
+CREATE VIEW total_pedidos_turma AS
+SELECT turmas.nome_turma, COUNT(*) AS total_pedidos
+FROM pedidos
+JOIN turmas ON pedidos.turmas_id_turma = turmas.id_turma
+GROUP BY turmas.nome_turma;
+
+
+CREATE VIEW ordem_decrescente_pedidos AS
+SELECT pedidos.nome_pedido AS nome_usuario, turmas.nome_turma, COUNT(*) AS total_pedidos
+FROM pedidos
+JOIN turmas ON pedidos.turmas_id_turma = turmas.id_turma
+GROUP BY pedidos.nome_pedido, turmas.nome_turma
+ORDER BY total_pedidos DESC;
+
+
+CREATE VIEW pedidos_negados_por_motivo AS
+SELECT motivo, COUNT(*) AS quantidade_pedidos_negados
+FROM pedidos
+WHERE status_pedido = 'Negado'
+GROUP BY motivo;
+
+
+CREATE VIEW tempo_medio_espera_motivo AS
+SELECT motivo, 
+       AVG(TIMESTAMPDIFF(MINUTE, hora_saida_pedido, hora_entrada_pedido)) AS tempo_medio_espera_minutos
+FROM pedidos
+GROUP BY motivo;
+
+
+CREATE VIEW porcentagem_pedidos_banheiro AS
+SELECT 
+    COUNT(CASE WHEN motivo = 'BANHEIRO' THEN 1 END) AS quantidade_pedidos_banheiro,
+    COUNT(*) AS total_pedidos,
+    ROUND((COUNT(CASE WHEN motivo = 'BANHEIRO' THEN 1 END) / COUNT(*)) * 100, 2) AS porcentagem_pedidos_banheiro
+FROM 
+    pedidos;
+
+
+
+
